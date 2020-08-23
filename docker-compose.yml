@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: on-failure
+    ports:
+      - 80:80
+    volumes:
+      - ./data/source:/opt/source/
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: celery -A job worker --loglevel=info
+    restart: on-failure
+    volumes:
+      - ./data/source:/opt/source/
+
+  redis:
+    image: redis
+    restart: on-failure
+#    volumes:
+
