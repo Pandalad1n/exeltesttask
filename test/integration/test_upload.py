@@ -2,6 +2,7 @@ import unittest
 import requests
 import settings
 import time
+import base64
 
 
 class TestUpload(unittest.TestCase):
@@ -11,6 +12,11 @@ class TestUpload(unittest.TestCase):
             'http://172.17.0.1/health',
         )
         self.assertEqual(response.status_code, 200)
+
+    def _auth_headers(self):
+        return {
+                "Authorization": 'Basic ' + base64.b64encode((settings.LOGIN + ':' + settings.PASSWORD).encode('utf-8')).decode('utf-8')
+            }
 
     def test_file_post(self):
         file_path = f'{settings.BASE_DIR}/data/example.xlsx'
