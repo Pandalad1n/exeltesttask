@@ -9,7 +9,6 @@ app = Celery('tasks', broker='redis://redis:6379', backend='redis://redis:6379')
 
 @app.task
 def parse_diff(file_path, task_id):
-    time.sleep(20)
     parser = XLSXParser(file_path)
     res = json.loads(repo.get(task_id))
     parse_result = parser.parse()

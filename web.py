@@ -22,7 +22,7 @@ def upload():
     job_id = str(uuid.uuid4())
     with open(f'/opt/source/{job_id}.xlsx', 'wb+') as file:
         file.write(request.data)
-    repo.set(job_id, json.dumps({"started": str(datetime.datetime.now())}))
+    repo.set(job_id, json.dumps({"started": str(datetime.datetime.now()), "status": "uploaded"}))
 
     parse_diff.apply_async(tuple([f'/opt/source/{job_id}.xlsx', job_id]), task_id=job_id)
     return jsonify({"job_id": job_id}), http.HTTPStatus.CREATED
@@ -31,6 +31,25 @@ def upload():
 @app.route('/get/<job_id>', methods=['GET'])
 def get(job_id):
     job = AsyncResult(job_id, app=celery_app)
-    res = json.loads(repo.get(job_id))
+    try:
+        job_status = job.status
 
+        if job_status == "PENDING":
+            job_status = "processing"
+        if job_status == "FAILURE":
+            job_status = "failed"
+        if job_status == "SUCCESS":
+            job_status = "finished"
+    except Exception as err:
+        job_status = "finished"
+
+    res = json.loads(repo.get(job_id))
+    parsed_result = res.get("result")
+    if parsed_result:
+        if parsed_result < 0:
+            res.update({"added": abs(parsed_result)})
+        else:
+            res.update({"removed": abs(parsed_result)})
+        res.pop("result")
+    res.update({"status": job_status})
     return jsonify(res)

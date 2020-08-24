@@ -3,3 +3,4 @@ openpyxl==3.0.5
 mock==4.0.2
 celery[redis]==4.4.7
 redis==3.5.3
+requests==2.24.0
