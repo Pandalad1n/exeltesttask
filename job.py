@@ -1,8 +1,10 @@
 import datetime
+import settings
 from celery import Celery
 from parser import XLSXParser
 from repo import repo
-app = Celery('tasks', broker='redis://redis:6379')
+
+app = Celery('tasks', broker=f'redis://{settings.REDIS_ADDR}:{settings.REDIS_PORT}')
 
 
 @app.task

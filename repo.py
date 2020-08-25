@@ -1,11 +1,11 @@
 import redis
 import json
+import settings
 
 
 class Repo:
     def __init__(self):
-        # TODO: from config
-        self.redis = redis.Redis(host='redis', port=6379, db=0)
+        self.redis = redis.Redis(host=settings.REDIS_ADDR, port=settings.REDIS_PORT, db=0)
 
     def update(self, job_id, data):
         res = json.loads(self.redis.get(job_id) or '{}')
